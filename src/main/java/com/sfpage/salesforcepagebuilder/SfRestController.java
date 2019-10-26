@@ -27,8 +27,8 @@ import java.util.List;
 public class SfRestController {
 
     org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SfRestController.class);
-    private static final String SESSION_ID = "***";
-    public static final String INSTANCE_URL = "**";
+    private static String SESSION_ID = null;
+    public static String INSTANCE_URL = null;
 
     private PartnerConnection partnerConnection = null;
 
@@ -72,7 +72,7 @@ public class SfRestController {
         ConnectorConfig config = new ConnectorConfig();
         config.setSessionId(SESSION_ID);
         try {
-            config.setServiceEndpoint("https://nagesingh-dev-ed.my.salesforce.com" + partnerURL);
+            config.setServiceEndpoint(INSTANCE_URL + partnerURL);
             partnerConnection = Connector.newConnection(config);
         } catch (Exception e) {
 
@@ -97,9 +97,6 @@ public class SfRestController {
                                              final HttpServletResponse response) {
 
         final String signedRequest = request.getParameter("signed_request");
-        LOGGER.info("signedRequest - > "+signedRequest);
-        final String redirectTo = ((endPoint == null) || "".equals(endPoint)) ? "/" : "/" + endPoint;
-
         if (signedRequest == null) {
             return new ResponseEntity<>("signed_request missing", HttpStatus.BAD_REQUEST);
         }
@@ -109,28 +106,9 @@ public class SfRestController {
                     System.getenv("SFDC_SECRET"));
 
             if(cr.getClient() != null) {
-                ConnectorConfig config = new ConnectorConfig();
-                config.setSessionId(cr.getClient().getOAuthToken());
-                try {
-                    config.setServiceEndpoint(cr.getClient().getInstanceUrl() + partnerURL);
-                    partnerConnection = Connector.newConnection(config);
-                } catch (Exception e) {
-
-                }
-
-                DescribeGlobalResult describeGlobalResult = partnerConnection.describeGlobal();
-
-                List<String> lstObjectsName = new ArrayList<>();
-                for (DescribeGlobalSObjectResult sobject : describeGlobalResult.getSobjects()) {
-                    if (sobject.getLayoutable() && sobject.isUpdateable()) {
-                        lstObjectsName.add(sobject.getName());
-                    }
-                }
-
-
-                Gson gson = new GsonBuilder().create();
-
-                return new ResponseEntity<>(gson.toJson(lstObjectsName), HttpStatus.OK);
+                SESSION_ID = cr.getClient().getOAuthToken();
+                INSTANCE_URL = cr.getClient().getInstanceUrl();
+                return new ResponseEntity<>("/index", HttpStatus.OK);
             }
 
         } catch (final Exception e) {
