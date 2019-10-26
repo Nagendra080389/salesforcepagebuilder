@@ -107,7 +107,7 @@ public class SfRestController {
         try {
             Gson gson = new GsonBuilder().create();
             final CanvasAuthentication auth = CanvasAuthentication.create(request, signedRequest);
-            LOGGER.info("auth - > "+gson.toJson(gson));
+            LOGGER.info("auth - > "+gson.toJson(auth));
             CanvasRequest cr = SignedRequest.verifyAndDecode(signedRequest,
                     System.getenv("SFDC_SECRET"));
 
