@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.Cookie;
@@ -131,9 +130,9 @@ public class SfRestController {
     }
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
-    public RedirectView index(RedirectAttributes attributes) {
-        LOGGER.info("index printed "+attributes);
+    public String index(final Model model, final Principal principal) {
+        LOGGER.info("index printed"+model);
         // return the template to use
-        return new RedirectView("templates/index");
+        return "index.html";
     }
 }
