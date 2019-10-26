@@ -1,5 +1,6 @@
 package com.sfpage.salesforcepagebuilder;
 
+import com.sfpage.canvas.CanvasAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,6 +19,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/", "/sfdcauth/**").permitAll();
+        http.authorizeRequests().antMatchers("/").permitAll().anyRequest().authenticated()
+                .and()
+                /* Add the filter that turns JWT into authentication */
+                .addFilter(new CanvasAuthorizationFilter(this.authenticationManager()))
+                /*
+                 * allow direct access to the POST form for Canvas use without a
+                 * _csrd token
+                 */
+                .csrf()
+                .ignoringAntMatchers("/sfdcauth/**");
     }
 }
