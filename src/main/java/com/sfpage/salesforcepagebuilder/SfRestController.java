@@ -5,15 +5,17 @@ import com.google.gson.GsonBuilder;
 import com.sforce.soap.partner.*;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
+import com.sfpage.canvas.CanvasAuthentication;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,5 +88,40 @@ public class SfRestController {
         Gson gson = new GsonBuilder().create();
 
         return gson.toJson(lstObjectFieldNames);
+    }
+
+    @RequestMapping(value = "/sfdcauth/{endpoint}", method = RequestMethod.POST)
+    public ResponseEntity<String> canvasPost(@PathVariable(name = "endpoint", required = false) final String endPoint,
+                                             final HttpSession session, final HttpServletRequest request,
+                                             final HttpServletResponse response) {
+
+        final String signedRequest = request.getParameter("signed_request");
+        final String redirectTo = ((endPoint == null) || "".equals(endPoint)) ? "/" : "/" + endPoint;
+
+        if (signedRequest == null) {
+            return new ResponseEntity<>("signed_request missing", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            final CanvasAuthentication auth = CanvasAuthentication.create(request, signedRequest);
+            if ((auth != null) && auth.isAuthenticated()) {
+                // The canvas request was valid, we add Header and Token
+                final String token = auth.getJwtToken();
+                CanvasAuthentication.addJwtCookie(session, request, response, token);
+
+                // Prepare the header for the redirect to actual payload
+                final HttpHeaders headers = new HttpHeaders();
+                headers.add("Location", redirectTo);
+                return new ResponseEntity<String>(redirectTo, headers, HttpStatus.SEE_OTHER);
+            }
+
+        } catch (final Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("signed_request invalid:" + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        // If we got here - it failed!
+        return new ResponseEntity<>("Authorization failed", HttpStatus.UNAUTHORIZED);
+
     }
 }
