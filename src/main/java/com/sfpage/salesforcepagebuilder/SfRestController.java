@@ -130,8 +130,8 @@ public class SfRestController {
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String index(final Model model, final Principal principal) {
-        LOGGER.info("index printed");
+        LOGGER.info("index printed"+model);
         // return the template to use
-        return "index";
+        return "/index.html";
     }
 }
