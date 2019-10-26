@@ -96,6 +96,7 @@ public class SfRestController {
                                              final HttpServletResponse response) {
 
         final String signedRequest = request.getParameter("signed_request");
+        System.out.println("signedRequest - > "+signedRequest);
         final String redirectTo = ((endPoint == null) || "".equals(endPoint)) ? "/" : "/" + endPoint;
 
         if (signedRequest == null) {
