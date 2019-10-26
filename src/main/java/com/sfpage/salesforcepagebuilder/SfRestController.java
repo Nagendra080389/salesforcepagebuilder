@@ -36,9 +36,6 @@ public class SfRestController {
     @Value("${partnerURL}")
     volatile String partnerURL;
 
-    @Value("${serviceURL}")
-    volatile String serviceURL;
-
     @RequestMapping(value = "/getObjectNames", method = RequestMethod.GET)
     public String getObjectNames(HttpServletResponse response, HttpServletRequest request) throws ConnectionException {
 

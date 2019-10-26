@@ -13,11 +13,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //...
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http/* Allow the app to show in a frame */
