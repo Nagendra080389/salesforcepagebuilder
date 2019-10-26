@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -20,8 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class SfRestController {
@@ -123,5 +126,11 @@ public class SfRestController {
         // If we got here - it failed!
         return new ResponseEntity<>("Authorization failed", HttpStatus.UNAUTHORIZED);
 
+    }
+
+    @RequestMapping(value = "/home", method = RequestMethod.GET)
+    public String index(final Model model, final Principal principal) {
+        // return the template to use
+        return "index";
     }
 }
