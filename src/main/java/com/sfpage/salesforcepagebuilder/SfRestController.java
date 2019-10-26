@@ -6,6 +6,8 @@ import com.sforce.soap.partner.*;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sfpage.canvas.CanvasAuthentication;
+import com.sfpage.canvas.CanvasRequest;
+import com.sfpage.canvas.SignedRequest;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -104,6 +106,14 @@ public class SfRestController {
 
         try {
             final CanvasAuthentication auth = CanvasAuthentication.create(request, signedRequest);
+            CanvasRequest cr = SignedRequest.verifyAndDecode(signedRequest,
+                    System.getenv("SFDC_SECRET"));
+            Gson gson = new GsonBuilder().create();
+            LOGGER.info("First 1 -> "+cr.getClient().getInstanceId());
+            LOGGER.info("First 2 -> "+cr.getClient().getInstanceUrl());
+            LOGGER.info("First 3 -> "+cr.getClient().getOAuthToken());
+            LOGGER.info("First 4 -> "+cr.getClient().getRefreshToken());
+            LOGGER.info("cr - > "+gson.toJson(cr));
             if ((auth != null) && auth.isAuthenticated()) {
                 // The canvas request was valid, we add Header and Token
                 final String token = auth.getJwtToken();

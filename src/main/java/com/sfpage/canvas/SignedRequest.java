@@ -15,6 +15,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 
 /**
  *
@@ -67,6 +68,33 @@ public class SignedRequest {
         // If we got this far, then the request was not tampered with.
         // return the request as a JsonNode.
         return json;
+    }
+
+    public static CanvasRequest verifyAndDecode(String input, String secret) throws SecurityException {
+
+        String[] split = getParts(input);
+
+        String encodedSig = split[0];
+        String encodedEnvelope = split[1];
+
+        // Deserialize the json body
+        String json_envelope = new String(new Base64(true).decode(encodedEnvelope));
+        org.codehaus.jackson.map.ObjectMapper mapper = new org.codehaus.jackson.map.ObjectMapper();
+        ObjectReader reader = mapper.reader(CanvasRequest.class);
+        CanvasRequest canvasRequest;
+        String algorithm;
+        try {
+            canvasRequest = reader.readValue(json_envelope);
+            algorithm = canvasRequest.getAlgorithm() == null ? "HMACSHA256" : canvasRequest.getAlgorithm();
+        } catch (IOException e) {
+            throw new SecurityException(String.format("Error [%s] deserializing JSON to Object [%s]", e.getMessage(), CanvasRequest.class.getName()), e);
+        }
+
+        verify(secret, algorithm, encodedEnvelope, encodedSig);
+
+        // If we got this far, then the request was not tampered with.
+        // return the request as a Java object
+        return canvasRequest;
     }
 
     private static String[] getParts(final String input) {
