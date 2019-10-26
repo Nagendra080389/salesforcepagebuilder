@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -115,7 +116,7 @@ public class SfRestController {
                 // Prepare the header for the redirect to actual payload
                 final HttpHeaders headers = new HttpHeaders();
                 headers.add("Location", redirectTo);
-                return new ResponseEntity<>(redirectTo, headers, HttpStatus.FOUND);
+                return new ResponseEntity<>(redirectTo, headers, HttpStatus.SEE_OTHER);
             }
 
         } catch (final Exception e) {
@@ -130,8 +131,8 @@ public class SfRestController {
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String index(final Model model, final Principal principal) {
-        LOGGER.info("index printed"+model);
+        LOGGER.info("index printed "+model);
         // return the template to use
-        return "/index.html";
+        return "salesforceBuilderHome";
     }
 }
