@@ -134,6 +134,6 @@ public class SfRestController {
     public RedirectView index(RedirectAttributes attributes) {
         LOGGER.info("index printed "+attributes);
         // return the template to use
-        return new RedirectView("index");
+        return new RedirectView("/index");
     }
 }
