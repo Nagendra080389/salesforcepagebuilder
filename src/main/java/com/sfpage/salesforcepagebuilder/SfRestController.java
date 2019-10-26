@@ -130,9 +130,7 @@ public class SfRestController {
     }
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
-    public String index(final Model model, final Principal principal) {
-        LOGGER.info("index printed"+model);
-        // return the template to use
-        return "index.html";
+    public void index(HttpServletResponse response, HttpServletRequest request) throws IOException {
+        response.sendRedirect("/html/index.html");
     }
 }
