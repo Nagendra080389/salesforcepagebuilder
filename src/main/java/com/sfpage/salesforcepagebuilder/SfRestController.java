@@ -105,24 +105,32 @@ public class SfRestController {
         }
 
         try {
-            final CanvasAuthentication auth = CanvasAuthentication.create(request, signedRequest);
             CanvasRequest cr = SignedRequest.verifyAndDecode(signedRequest,
                     System.getenv("SFDC_SECRET"));
-            Gson gson = new GsonBuilder().create();
-            LOGGER.info("First 1 -> "+cr.getClient().getInstanceId());
-            LOGGER.info("First 2 -> "+cr.getClient().getInstanceUrl());
-            LOGGER.info("First 3 -> "+cr.getClient().getOAuthToken());
-            LOGGER.info("First 4 -> "+cr.getClient().getRefreshToken());
-            LOGGER.info("cr - > "+gson.toJson(cr));
-            if ((auth != null) && auth.isAuthenticated()) {
-                // The canvas request was valid, we add Header and Token
-                final String token = auth.getJwtToken();
-                CanvasAuthentication.addJwtCookie(session, request, response, token);
-                LOGGER.info("token - > "+token);
-                // Prepare the header for the redirect to actual payload
-                final HttpHeaders headers = new HttpHeaders();
-                headers.add("Location", redirectTo);
-                return new ResponseEntity<String>(redirectTo, headers, HttpStatus.SEE_OTHER);
+
+            if(cr.getClient() != null) {
+                ConnectorConfig config = new ConnectorConfig();
+                config.setSessionId(cr.getClient().getOAuthToken());
+                try {
+                    config.setServiceEndpoint(cr.getClient().getInstanceUrl() + partnerURL);
+                    partnerConnection = Connector.newConnection(config);
+                } catch (Exception e) {
+
+                }
+
+                DescribeGlobalResult describeGlobalResult = partnerConnection.describeGlobal();
+
+                List<String> lstObjectsName = new ArrayList<>();
+                for (DescribeGlobalSObjectResult sobject : describeGlobalResult.getSobjects()) {
+                    if (sobject.getLayoutable() && sobject.isUpdateable()) {
+                        lstObjectsName.add(sobject.getName());
+                    }
+                }
+
+
+                Gson gson = new GsonBuilder().create();
+
+                return new ResponseEntity<>(gson.toJson(lstObjectsName), HttpStatus.OK);
             }
 
         } catch (final Exception e) {
