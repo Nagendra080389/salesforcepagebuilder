@@ -6,6 +6,7 @@ import com.sforce.soap.partner.*;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sfpage.canvas.CanvasAuthentication;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 public class SfRestController {
 
+    org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SfRestController.class);
     private static final String SESSION_ID = "***";
     public static final String INSTANCE_URL = "**";
 
@@ -96,7 +98,7 @@ public class SfRestController {
                                              final HttpServletResponse response) {
 
         final String signedRequest = request.getParameter("signed_request");
-        System.out.println("signedRequest - > "+signedRequest);
+        LOGGER.info("signedRequest - > "+signedRequest);
         final String redirectTo = ((endPoint == null) || "".equals(endPoint)) ? "/" : "/" + endPoint;
 
         if (signedRequest == null) {
