@@ -115,7 +115,7 @@ public class SfRestController {
                 // Prepare the header for the redirect to actual payload
                 final HttpHeaders headers = new HttpHeaders();
                 headers.add("Location", redirectTo);
-                return new ResponseEntity<>(redirectTo, headers, HttpStatus.SEE_OTHER);
+                return new ResponseEntity<>(redirectTo, headers, HttpStatus.FOUND);
             }
 
         } catch (final Exception e) {
