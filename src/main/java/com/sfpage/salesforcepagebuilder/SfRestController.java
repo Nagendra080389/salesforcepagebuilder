@@ -98,23 +98,17 @@ public class SfRestController {
 
         final String signedRequest = request.getParameter("signed_request");
 
-        final String redirectTo = ((endPoint == null) || "".equals(endPoint)) ? "/" : "/" + endPoint;
-
         if (signedRequest == null) {
             return new ResponseEntity<>("signed_request missing", HttpStatus.BAD_REQUEST);
         }
 
         try {
-            Gson gson = new GsonBuilder().create();
-            final CanvasAuthentication auth = CanvasAuthentication.create(request, signedRequest);
-            LOGGER.info("auth - > "+gson.toJson(auth));
-            CanvasRequest cr = SignedRequest.verifyAndDecode(signedRequest,
-                    System.getenv("SFDC_SECRET"));
+            CanvasRequest cr = SignedRequest.verifyAndDecode(signedRequest, System.getenv("SFDC_SECRET"));
 
             if(cr.getClient() != null) {
                 SESSION_ID = cr.getClient().getOAuthToken();
                 INSTANCE_URL = cr.getClient().getInstanceUrl();
-                return new ResponseEntity<>("/index", HttpStatus.OK);
+                return new ResponseEntity<>("/index", HttpStatus.SEE_OTHER);
             }
 
         } catch (final Exception e) {
