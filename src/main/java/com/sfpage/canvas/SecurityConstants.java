@@ -23,6 +23,8 @@ package com.sfpage.canvas;
 
 public final class SecurityConstants {
     public static final String COOKIE_NAME      = "SFDC";
+    public static final String INSTANCE_URL_NAME      = "INSTANCE_URL";
+    public static final String INSTANCE_URL_ATTRIBUTE      = "com.salesforce.instanceURL";
     public static final String COOKIE_ATTRIBUTE = "com.salesforce.canvas";
     public static final String USER_NAME_CLAIM  = "SFDCUserName";
     public static final String ROLE_PREFIX      = "ROLE_";

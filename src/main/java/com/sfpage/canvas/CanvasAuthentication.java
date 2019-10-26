@@ -78,6 +78,25 @@ public class CanvasAuthentication implements Authentication {
         response.addCookie(jwtCookie);
         // Capture in the session for faster access
         session.setAttribute(SecurityConstants.COOKIE_ATTRIBUTE, token);
+    }
+
+    public static void addInstanceURL(final HttpSession session, final HttpServletRequest request,
+                                    final HttpServletResponse response, final String instanceURL) {
+
+        if ((instanceURL == null) || "".equals(instanceURL)) {
+            return;
+        }
+
+        final Cookie instanceURLCookie = new Cookie(SecurityConstants.INSTANCE_URL_NAME, instanceURL);
+        // Limit cookies lifetime
+        instanceURLCookie.setMaxAge(Config.PARAMS.getCookieLifespan());
+        instanceURLCookie.setPath("/");
+        instanceURLCookie.setVersion(1);
+        // Ensure nobody tampers with the cookie using JavaScript
+        instanceURLCookie.setHttpOnly(true);
+        response.addCookie(instanceURLCookie);
+        // Capture in the session for faster access
+        session.setAttribute(SecurityConstants.INSTANCE_URL_ATTRIBUTE, instanceURL);
 
     }
 

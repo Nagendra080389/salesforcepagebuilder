@@ -7,6 +7,7 @@ import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sfpage.canvas.CanvasAuthentication;
 import com.sfpage.canvas.CanvasRequest;
+import com.sfpage.canvas.SecurityConstants;
 import com.sfpage.canvas.SignedRequest;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,9 +32,6 @@ import java.util.UUID;
 public class SfRestController {
 
     org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SfRestController.class);
-    private static String SESSION_ID = null;
-    public static String INSTANCE_URL = null;
-
     private PartnerConnection partnerConnection = null;
 
     @Value("${toolingURL}")
@@ -46,9 +44,21 @@ public class SfRestController {
     public String getObjectNames(HttpServletResponse response, HttpServletRequest request) throws ConnectionException {
 
         ConnectorConfig config = new ConnectorConfig();
-        config.setSessionId(SESSION_ID);
+        String instanceUrl = null;
+        String accessToken = null;
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(SecurityConstants.COOKIE_NAME)) {
+                accessToken = cookie.getValue();
+            }
+            if (cookie.getName().equals(SecurityConstants.INSTANCE_URL_NAME)) {
+                instanceUrl = cookie.getValue();
+                instanceUrl = instanceUrl + partnerURL;
+            }
+        }
+        config.setSessionId(accessToken);
         try {
-            config.setServiceEndpoint(INSTANCE_URL + partnerURL);
+            config.setServiceEndpoint(instanceUrl + partnerURL);
             partnerConnection = Connector.newConnection(config);
         } catch (Exception e) {
 
@@ -74,9 +84,21 @@ public class SfRestController {
     public String getSobjectFields(@RequestParam String strObjectName, HttpServletResponse response, HttpServletRequest request) throws ConnectionException {
 
         ConnectorConfig config = new ConnectorConfig();
-        config.setSessionId(SESSION_ID);
+        String instanceUrl = null;
+        String accessToken = null;
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(SecurityConstants.COOKIE_NAME)) {
+                accessToken = cookie.getValue();
+            }
+            if (cookie.getName().equals(SecurityConstants.INSTANCE_URL_NAME)) {
+                instanceUrl = cookie.getValue();
+                instanceUrl = instanceUrl + partnerURL;
+            }
+        }
+        config.setSessionId(accessToken);
         try {
-            config.setServiceEndpoint(INSTANCE_URL + partnerURL);
+            config.setServiceEndpoint(instanceUrl + partnerURL);
             partnerConnection = Connector.newConnection(config);
         } catch (Exception e) {
 
@@ -111,8 +133,8 @@ public class SfRestController {
             CanvasRequest cr = SignedRequest.verifyAndDecode(signedRequest, System.getenv("SFDC_SECRET"));
 
             if(cr.getClient() != null) {
-                SESSION_ID = cr.getClient().getOAuthToken();
-                INSTANCE_URL = cr.getClient().getInstanceUrl();
+                CanvasAuthentication.addJwtCookie(session, request, response, cr.getClient().getOAuthToken());
+                CanvasAuthentication.addInstanceURL(session, request, response, cr.getClient().getInstanceUrl());
                 // Prepare the header for the redirect to actual payload
                 final HttpHeaders headers = new HttpHeaders();
                 headers.add("Location", redirectTo);
