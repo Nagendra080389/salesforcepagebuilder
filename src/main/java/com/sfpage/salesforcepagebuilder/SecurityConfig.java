@@ -25,7 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                  * Define the URLs that can be accesses without authentication
                  */
                 .authorizeRequests()
-                .antMatchers("/","/*","/html/*",
+                .antMatchers("/","/*","/html/*","/js/*","/css/*",
                         "/sfdcauth/**")
                 .permitAll()
                 /* Require all others to be authenticated */
