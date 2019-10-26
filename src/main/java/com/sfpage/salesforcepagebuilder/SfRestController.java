@@ -108,7 +108,7 @@ public class SfRestController {
                 // The canvas request was valid, we add Header and Token
                 final String token = auth.getJwtToken();
                 CanvasAuthentication.addJwtCookie(session, request, response, token);
-
+                LOGGER.info("token - > "+token);
                 // Prepare the header for the redirect to actual payload
                 final HttpHeaders headers = new HttpHeaders();
                 headers.add("Location", redirectTo);
