@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="sfPageBuilder">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="../static/js/jquery-3.4.1.min.js"></script>
+    <script src="../static/js/angular.js"></script>
+    <script src="../static/js/bootstrap.js"></script>
+    <script src="../static/js/sfPageScript.js"></script>
+
+    <link href="../static/css/bootstrap.css" rel="stylesheet" type="text/css">
+
+    <title>Sf Page Builder</title>
+</head>
+<body ng-controller="sfPageController">
+
+<div id="themeDiv">
+    <select ng-model="selectedObjectName" ng-change="fetchFields()" id="select" ng-options="eachObject for eachObject in objectsName">
+        <option value="">Select Object</option>
+    </select>
+
+    <ul>
+        <li ng-repeat="eachField in allFields">{{eachField}}</li>
+    </ul>
+</div>
+
+</body>
+</html>

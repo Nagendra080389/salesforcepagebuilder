@@ -97,6 +97,7 @@ public class SfRestController {
                                              final HttpServletResponse response) {
 
         final String signedRequest = request.getParameter("signed_request");
+        final String redirectTo = ((endPoint == null) || "".equals(endPoint)) ? "/" : "/" + endPoint;
 
         if (signedRequest == null) {
             return new ResponseEntity<>("signed_request missing", HttpStatus.BAD_REQUEST);
@@ -108,7 +109,10 @@ public class SfRestController {
             if(cr.getClient() != null) {
                 SESSION_ID = cr.getClient().getOAuthToken();
                 INSTANCE_URL = cr.getClient().getInstanceUrl();
-                return new ResponseEntity<>("/index", HttpStatus.SEE_OTHER);
+                // Prepare the header for the redirect to actual payload
+                final HttpHeaders headers = new HttpHeaders();
+                headers.add("Location", redirectTo);
+                return new ResponseEntity<>(redirectTo, headers, HttpStatus.SEE_OTHER);
             }
 
         } catch (final Exception e) {
