@@ -97,11 +97,15 @@ public class SfRestController {
                                              final HttpServletResponse response) {
 
         final String signedRequest = request.getParameter("signed_request");
+        LOGGER.info("signedRequest - > "+signedRequest);
+        final String redirectTo = ((endPoint == null) || "".equals(endPoint)) ? "/" : "/" + endPoint;
+
         if (signedRequest == null) {
             return new ResponseEntity<>("signed_request missing", HttpStatus.BAD_REQUEST);
         }
 
         try {
+            final CanvasAuthentication auth = CanvasAuthentication.create(request, signedRequest);
             CanvasRequest cr = SignedRequest.verifyAndDecode(signedRequest,
                     System.getenv("SFDC_SECRET"));
 
