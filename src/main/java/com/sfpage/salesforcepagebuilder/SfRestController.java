@@ -48,7 +48,7 @@ public class SfRestController {
         String accessToken = null;
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(SecurityConstants.COOKIE_NAME)) {
+            if (cookie.getName().equals(SecurityConstants.SESSION_ID)) {
                 accessToken = cookie.getValue();
             }
             if (cookie.getName().equals(SecurityConstants.INSTANCE_URL_NAME)) {
@@ -87,7 +87,7 @@ public class SfRestController {
         String accessToken = null;
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(SecurityConstants.COOKIE_NAME)) {
+            if (cookie.getName().equals(SecurityConstants.SESSION_ID)) {
                 accessToken = cookie.getValue();
             }
             if (cookie.getName().equals(SecurityConstants.INSTANCE_URL_NAME)) {
@@ -131,8 +131,16 @@ public class SfRestController {
         try {
             CanvasRequest cr = SignedRequest.verifyAndDecode(signedRequest, System.getenv("SFDC_SECRET"));
 
+            final CanvasAuthentication auth = CanvasAuthentication.create(request, signedRequest);
+            if ((auth != null) && auth.isAuthenticated()) {
+
+                // The canvas request was valid, we add Header and Token
+                final String token = auth.getJwtToken();
+                CanvasAuthentication.addJwtCookie(session, request, response, token);
+            }
+
             if(cr.getClient() != null) {
-                CanvasAuthentication.addJwtCookie(session, request, response, cr.getClient().getOAuthToken());
+                CanvasAuthentication.addSessionIdCookie(session, request, response, cr.getClient().getOAuthToken());
                 CanvasAuthentication.addInstanceURL(session, request, response, cr.getClient().getInstanceUrl());
                 // Prepare the header for the redirect to actual payload
                 final HttpHeaders headers = new HttpHeaders();
