@@ -66,7 +66,6 @@ public class SfRestController {
 
         DescribeGlobalResult describeGlobalResult = partnerConnection.describeGlobal();
 
-        System.out.println(describeGlobalResult);
         List<String> lstObjectsName = new ArrayList<>();
         for (DescribeGlobalSObjectResult sobject : describeGlobalResult.getSobjects()) {
             if (sobject.getLayoutable() && sobject.isUpdateable()) {
